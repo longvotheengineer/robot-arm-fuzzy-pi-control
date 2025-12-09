@@ -20,7 +20,7 @@ By implementing a **Hybrid Fuzzy-PI Controller** on an STM32 microcontroller, th
 * **Hardware-in-the-Loop (HIL) Monitoring:** Custom Windows GUI for setting position targets ($45^\circ, 90^\circ, 180^\circ$) and visualizing step response data in real-time.
 * **Robustness:** Experimental verification showing stability under load variations (Inertia $J$ variation up to $0.005 kg.m^2$).
 
-## ⚙️ System Architecture
+## System Architecture
 
 ### 1. Mathematical Modeling
 The actuator is modeled as a second-order dynamic system governed by the electromechanical equation:
