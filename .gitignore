@@ -1,0 +1,77 @@
+# =======================================================
+# KEIL uVISION 5 / MDK-ARM (Firmware)
+# =======================================================
+# Build artifacts and temporary files
+*.o
+*.d
+*.crf
+*.map
+*.htm
+*.dep
+*.lnp
+*.axf
+*.sct
+*.lst
+*.iex
+*.adm
+*.hex
+*.bin
+*.elf
+
+# Keil 5 auto-generated build folders
+MDK-ARM/Objects/
+MDK-ARM/Listings/
+MDK-ARM/DebugConfig/
+MDK-ARM/RTE/
+
+# Debugger settings and local configuration (User-specific)
+*.uvguix.*
+*.uvgui.*
+*.uvoptx
+*.bak
+JLinkLog.txt
+
+# =======================================================
+# VISUAL STUDIO / C# .NET (Host Interface)
+# =======================================================
+# Build results
+[Bb]in/
+[Oo]bj/
+
+# User-specific files (Personal settings)
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Visual Studio cache/configuration
+.vs/
+.vscode/
+
+# =======================================================
+# MATLAB / SIMULINK (Simulation)
+# =======================================================
+# Autosave and backup files
+*.asv
+*.bak
+
+# Simulink cache and generated code
+*.slxc
+slprj/
+*_ert_rtw/
+*_grt_rtw/
+
+# MATLAB compiled files (if any)
+*.mex*
+
+# =======================================================
+# STM32 CUBE MX
+# =======================================================
+.mxproject
+
+# =======================================================
+# OS & GENERAL
+# =======================================================
+.DS_Store
+Thumbs.db
+ehthumbs.db
