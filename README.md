@@ -1,4 +1,4 @@
-# Intelligent 1-DoF Robotic Actuator with Adaptive Fuzzy-PI Control
+# Intelligent Robotic Actuator with Adaptive Fuzzy-PI Control
 
 [![Platform](https://img.shields.io/badge/Platform-STM32%20ARM%20Cortex--M3-blue)](https://www.st.com/en/microcontrollers-microprocessors/stm32f103c8.html)
 [![Control](https://img.shields.io/badge/Control-Fuzzy%20Logic%20%7C%20PID-orange)](https://www.mathworks.com/discovery/fuzzy-logic.html)
