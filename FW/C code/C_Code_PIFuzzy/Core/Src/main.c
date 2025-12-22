@@ -79,33 +79,46 @@ static void MX_I2C1_Init(void);
 #define NUM_MF 7
 #define NUM_RULES 49
 
-uint8_t RX_Data[17], TX_Data[29], Leech_Motor_Speed [3], LED_Status_Buffer [2], Each_Eeprom_Element[1];
-uint8_t UART1_RX_Flag, LED_1_Status_Flag, LED_2_Status_Flag, LED_Status_Tracking_Flag, Store_LED_Status_Flag, Timer3_Delay_Flag, Store_Motor_Speed_Flag, Recover_Data_Flag;
-uint8_t Trajectory_Tracking_Flag, Forward_0D_Flag, Forward_45D_Flag, Forward_90D_Flag, Forward_180D_Flag, Forward_360D_Flag, Motor_Position_Tracking_Flag, Control_Motor_Speed_Flag, PID_Calculation_Flag;
+uint8_t RX_Data[17], TX_Data[29], 
+		Leech_Motor_Speed [3], 
+		LED_Status_Buffer [2], 
+		Each_Eeprom_Element[1];
+uint8_t UART1_RX_Flag, 
+		LED_1_Status_Flag, LED_2_Status_Flag, LED_Status_Tracking_Flag, Store_LED_Status_Flag, 
+		Timer3_Delay_Flag, 
+		Store_Motor_Speed_Flag, 
+		Recover_Data_Flag;
+uint8_t Trajectory_Tracking_Flag, 
+		Forward_0D_Flag, Forward_45D_Flag, Forward_90D_Flag, Forward_180D_Flag, Forward_360D_Flag, 
+		Motor_Position_Tracking_Flag, 
+		Control_Motor_Speed_Flag, 
+		PID_Calculation_Flag;
 uint8_t Mode_00_Flag, Mode_01_Flag, Mode_02_Flag, Mode_03_Flag, Mode_04_Flag, Mode_05_Flag, Mode_06_Flag;
 
-char *Char_RX_Data, Down_Line[] = "\r \n", RX_Hex_Data[29];
-char Pulse_Buffer[13], Label_LED_Status_Buffer[13];
+char 	*Char_RX_Data, Down_Line[] = "\r \n", RX_Hex_Data[29];
+char 	Pulse_Buffer[13], Label_LED_Status_Buffer[13];
 
-int pre_pulse, pulse, PWM_Duty_Cycle, Label_LED_Status;
-int count, i;
-int Iden_Control_Motor;
+int 	pre_pulse, pulse, 
+		PWM_Duty_Cycle, 
+		Label_LED_Status,
+		count, i,
+		Iden_Control_Motor;
 
-float setpoint = 0, Output_Voltage_Setpoint;
-float pre_error, error;
-float integral, derivative, duty_cycle_output;
-float Kp = 10, Ki = 0.5, Kd = 0.1;
-float Delta_t = 0.02, u, u_dot;
+float 	setpoint, Output_Voltage_Setpoint,
+	 	pre_error, error,
+	 	integral, derivative, duty_cycle_output,
+	 	Kp = 10, Ki = 0.5, Kd = 0.1,
+	 	Delta_t = 0.02, u, u_dot;
 
-const char* labels[NUM_MF] = {"NB", "NM", "NS", "ZO", "PS", "PM", "PB"};
+const 	char* labels[NUM_MF] = {"NB", "NM", "NS", "ZO", "PS", "PM", "PB"};
 
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 
-//=======================================EEPROM=========================================//
 //======================================================================================//
+//=======================================   EEPROM   ===================================//
 //======================================================================================//
 
 void Recover_Data ()
@@ -154,9 +167,9 @@ void Recover_Data ()
 	}
 }
 
-//========================================DAC===========================================//
-//======================================================================================//
-//======================================================================================//
+//====================================================================================//
+//===================================   DAC   ========================================//
+//====================================================================================//
 
 void MCP4725_SetVoltage(int Output_Voltage_Setpoint)
 {
@@ -180,9 +193,9 @@ void Change_Output_Voltage ()
 	MCP4725_SetVoltage ((Output_Voltage_Setpoint * 4095) / 3);         
 }
 
-//========================LED STATUS & MOTOR POSITION TRACKING==========================//
-//======================================================================================//
-//======================================================================================//
+//==============================================================================//
+//=================   LED STATUS & MOTOR POSITION TRACKING   ===================//
+//==============================================================================//
 
 void Active_Inactive_Status_Tracking ()
 {
@@ -192,28 +205,25 @@ void Active_Inactive_Status_Tracking ()
 	if (count == 1)
 	{
 		setpoint = 0;
-	}
-	
-	if (count == 2)
+	}	
+	else if (count == 2)
 	{
 		setpoint = 50;
-	}
-	
-	if (count == 3)
+	}	
+	else if (count == 3)
 	{
 		setpoint = 100;
-	}
-	
-	if (count == 4)
+	}	
+	else if (count == 4)
 	{
 		setpoint = 150;
 		count = 0;
 	}
 }
 
-//=====================================DRAW GRAPH=======================================//
-//======================================================================================//
-//======================================================================================//
+//===============================================================================//
+//==============================   DRAW GRAPH   =================================//
+//===============================================================================//
 
 void Pulse_Transmit_Via_Com ()
 {
@@ -222,9 +232,9 @@ void Pulse_Transmit_Via_Com ()
 	HAL_Delay(5);
 }
 
-//====================================CONTROL MOTOR=====================================//
-//======================================================================================//
-//======================================================================================//
+//===============================================================================//
+//=============================   CONTROL MOTOR   ===============================//
+//===============================================================================//
 
 //=============CHANGE MOTOR POSITION=============//
 void Change_Motor_Position ()
@@ -238,78 +248,65 @@ void Change_Motor_Position ()
 			setpoint = 0;
 			Kp = 10;
 			Ki = 0.5;
-			Kd = 0.1;
-			
+			Kd = 0.1;			
 			Trajectory_Tracking_Flag = 0;
-		}
-		
+		}		
 		//FORWARD 0 DEG//
 		if (Forward_0D_Flag == 1)
 		{			
 			setpoint = 0;
 			Kp = 10;
 			Ki = 0.5;
-			Kd = 0.1;
-			
+			Kd = 0.1;			
 			Forward_0D_Flag = 0;
-		}
-		
+		}		
 		//FORWARD 45 DEG//
 		if (Forward_45D_Flag == 1)
 		{
 			setpoint = 224/8;
 			Kp = 10;
 			Ki = 0.5;
-			Kd = 0.1;
-			
+			Kd = 0.1;			
 			Forward_45D_Flag = 0;
-		}
-		
+		}		
 		//FORWARD 90 DEG//
 		if (Forward_90D_Flag == 1)
 		{
 			setpoint = 224/4;
 			Kp = 10;
 			Ki = 0.5;
-			Kd = 0.1;
-			
+			Kd = 0.1;			
 			Forward_90D_Flag = 0;
-}
-		
+		}		
 		//FORWARD 180 DEG//
 		if (Forward_180D_Flag == 1)
 		{
 			setpoint = 224/2;
 			Kp = 20;
 			Ki = 0.5;
-			Kd = 0.1;
-			
+			Kd = 0.1;			
 			Forward_180D_Flag = 0;
-		}
-		
+		}		
 		//FORWARD 360 DEG//
 		if (Forward_360D_Flag == 1)
 		{
 			setpoint = 224/1;
 			Kp = 8;
 			Ki = 6;
-			Kd = 0.4;
-			
+			Kd = 0.4;			
 			Forward_360D_Flag = 0;
 		}
 	}
 }
 
-//=============GENERATE PWM SIGNAL BY TIMER 1=============//
-
+//======   GENERATE PWM SIGNAL BY TIMER 1   ======//
 void Generate_PWM (TIM_HandleTypeDef *htim, uint32_t Channel, float Duty_Cycle)
 {
 	Duty_Cycle = Duty_Cycle / 100 * htim->Instance->ARR;
 	__HAL_TIM_SET_COMPARE(&htim1, Channel, (uint16_t)Duty_Cycle);
 }
 
-//=============CONTROL POSITION=============//
-
+//=============   CONTROL POSITION   ============//
 void Control_Forward ()
 {
 	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_2, 0);
@@ -352,8 +349,7 @@ void Control_Position ()
 	}
 }
 
-//=============CONTROL MOTOR SPEED=============//
-
+//==========   CONTROL MOTOR SPEED   ==========//
 void Control_Motor_Speed ()
 {
 	Mode_04_Flag = 0;
@@ -376,8 +372,7 @@ void Control_Motor_Speed ()
 	}
 }
 
-//=============ENCODER PULSE COUNTING=============//
-
+//==========   ENCODER PULSE COUNTING   ==========//
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
 	if (HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_1) == 0)
@@ -390,8 +385,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 	}
 }
 
-//=============PID CALCULATION & ACTIVE TIMER INTERUPT=============//
-
+//==========   PID CALCULATION & ACTIVE TIMER INTERUPT   ==========//
 //TRIANGULAR MEMBERSHIP FUNCTION
 float trimf(float x, float a, float b, float c) 
 {
@@ -413,14 +407,24 @@ typedef struct
 
 MF e_mf[NUM_MF] = 
 {
-    {-1, -1, -0.66}, {-1, -0.66, -0.33}, {-0.66, -0.33, 0}, {-0.33, 0, 0.33},
-    {0, 0.33, 0.66}, {0.33, 0.66, 1}, {0.66, 1, 1}
+    {   -1,	   -1, -0.66},	
+	{   -1, -0.66, -0.33},	
+	{-0.66, -0.33,     0}, 	
+	{-0.33,     0,  0.33},
+	{    0,  0.33,  0.66},	
+	{ 0.33,  0.66,     1}, 
+	{ 0.66,     1,     1}
 };
 
 MF de_mf[NUM_MF] = 
 {
-    {-1, -1, -0.66}, {-1, -0.66, -0.33}, {-0.66, -0.33, 0}, {-0.33, 0, 0.33},
-    {0, 0.33, 0.66}, {0.33, 0.66, 1}, {0.66, 1, 1}
+    {   -1,    -1, -0.66}, 
+	{   -1, -0.66, -0.33}, 
+	{-0.66, -0.33,     0}, 
+	{-0.33,     0,  0.33},
+    {    0,  0.33,  0.66}, 
+	{ 0.33,  0.66,     1}, 
+	{ 0.66,     1,     1}
 };
 
 float u_mf_centers[NUM_MF] = {-1.0, -0.66, -0.33, 0.0, 0.33, 0.66, 1.0};
@@ -439,17 +443,19 @@ int rule_table[NUM_MF][NUM_MF] =
 
 //INFERENCE FUNCTION
 float fuzzy_inference(float e, float de) 
-	{
+{
     float weights[NUM_RULES] = {0};
     float outputs[NUM_RULES] = {0};
     int idx = 0;
 
-    for (int i = 0; i < NUM_MF; i++) {
+    for (int i = 0; i < NUM_MF; i++) 
+	{
         float mu_e = trimf(e, e_mf[i].a, e_mf[i].b, e_mf[i].c);
-        for (int j = 0; j < NUM_MF; j++) {
-            float mu_de = trimf(de, de_mf[j].a, de_mf[j].b, de_mf[j].c);
-            float w = mu_e < mu_de ? mu_e : mu_de;
-            int out_idx = rule_table[i][j];
+        for (int j = 0; j < NUM_MF; j++) 
+		{
+            float mu_de	 = trimf(de, de_mf[j].a, de_mf[j].b, de_mf[j].c);
+            float w 	 = mu_e < mu_de ? mu_e : mu_de;
+            int out_idx	 = rule_table[i][j];
             weights[idx] = w;
             outputs[idx] = u_mf_centers[out_idx];
             idx++;
@@ -458,13 +464,14 @@ float fuzzy_inference(float e, float de)
 
     //DEFUZZY USE WEIGHTED AVERAGE TECHNIQUE
     float sum_w = 0, sum_u = 0;
-    for (int i = 0; i < NUM_RULES; i++) {
+    for (int i = 0; i < NUM_RULES; i++) 
+	{
         sum_w += weights[i];
         sum_u += weights[i] * outputs[i];
     }
     if (sum_w == 0) return 0;
     return sum_u / sum_w;
-	}
+}
 
 
 void PID_Calculation ()
@@ -475,7 +482,7 @@ void PID_Calculation ()
 	error = setpoint - pulse;
 	error = error / 300;
 	if (error > 1.0f) error = 1.0f;
-  if (error < -1.0f) error = -1.0f;
+  	if (error < -1.0f) error = -1.0f;
 	
 	integral = integral + (error * Delta_t);
 	integral = integral / 1.0;
@@ -483,7 +490,7 @@ void PID_Calculation ()
 	derivative = (error - pre_error) / Delta_t;
 	derivative = derivative / 1.0;
 	if (derivative > 1.0f) derivative = 1.0f;
-  if (derivative < -1.0f) derivative = -1.0f;
+  	if (derivative < -1.0f) derivative = -1.0f;
 	
 	//FUZZY FUNCTION BLOCK
 	u_dot = fuzzy_inference(error, derivative); 
@@ -496,15 +503,15 @@ void PID_Calculation ()
 	{
 		u = 1;
 	}
-	if (u < -1)
+	else if (u < -1)
 	{
 		u = -1;
 	}
 	
 	if (fabs(setpoint - pulse) <= 2) 
 	{
-    u = 0;
-  }
+    	u = 0;
+  	}
 	
 	//GAIN BLOCK
 	duty_cycle_output = u*100;
@@ -524,8 +531,7 @@ void PID_Calculation ()
 	if (fabs(duty_cycle_output) < 5) duty_cycle_output = 0;
 	
 	//=============END MATLAB=============//	
-	pre_error = error;
-		
+	pre_error = error;		
 	Control_Position();
 }
 
@@ -543,35 +549,30 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 	
 }
 
-//=================================UART COMMUNICATTION==================================//
-//======================================================================================//
-//======================================================================================//
+//==========================================================================//
+//========================   UART COMMUNICATTION   =========================//
+//==========================================================================//
 
-//=============UART RECEIVE CHECKING=============//
-
+//==========   UART RECEIVE CHECKING   ==========//
 void HAL_UARTEx_RxEventCallback (UART_HandleTypeDef *huart, uint16_t Size)
 {
 	if (huart->Instance == USART1)
 	{
-			UART1_RX_Flag = 1;	
+		UART1_RX_Flag = 1;	
 	}
 }
 
-//=============UART RECEIVE PROCESSING=============//
-
+//=========   UART RECEIVE PROCESSING   =========//
 void UART1_RX_Processing ()
 {
-	UART1_RX_Flag = 0;
-	
-	HAL_UARTEx_ReceiveToIdle_DMA (&huart1, RX_Data, sizeof(RX_Data));
-	
+	UART1_RX_Flag = 0;	
+	HAL_UARTEx_ReceiveToIdle_DMA (&huart1, RX_Data, sizeof(RX_Data));	
 	Char_RX_Data = (char*)RX_Data;
 	
 	//MODE 00 - CONTROL LED//
 	if ((strncmp(Char_RX_Data, "0000", 4) == 0) && (strncmp(&Char_RX_Data[9], "1", 1) == 0))
 	{
-		Mode_00_Flag = 1;	
-		
+		Mode_00_Flag = 1;			
 		if (strncmp(Char_RX_Data, "00000000011", sizeof(RX_Data)) == 0)
 		{
 			LED_1_Status_Flag = 0;
@@ -594,34 +595,28 @@ void UART1_RX_Processing ()
 	//MODE 01 - CONTROL MOTOR POSITION//
 	if ((strncmp(Char_RX_Data, "0001", 4) == 0) && (strncmp(&Char_RX_Data[9], "1", 1) == 0))
 	{
-		Mode_01_Flag = 1;
-		
+		Mode_01_Flag = 1;		
 		if (strncmp(Char_RX_Data, "0001F000011", sizeof(RX_Data)) == 0)
 		{
 			Trajectory_Tracking_Flag = 1;
-		}
-		
-		if (strncmp(Char_RX_Data, "00010000011", sizeof(RX_Data)) == 0)
+		}		
+		else if (strncmp(Char_RX_Data, "00010000011", sizeof(RX_Data)) == 0)
 		{
 			Forward_0D_Flag = 1;
 		}
-		
-		if (strncmp(Char_RX_Data, "0001002D011", sizeof(RX_Data)) == 0)
+		else if (strncmp(Char_RX_Data, "0001002D011", sizeof(RX_Data)) == 0)
 		{
 			Forward_45D_Flag = 1;
-		}
-		
-		if (strncmp(Char_RX_Data, "0001005A011", sizeof(RX_Data)) == 0)
+		}		
+		else if (strncmp(Char_RX_Data, "0001005A011", sizeof(RX_Data)) == 0)
 		{
 			Forward_90D_Flag = 1;
-		}
-		
-		if (strncmp(Char_RX_Data, "000100B4011", sizeof(RX_Data)) == 0)
+		}		
+		else if (strncmp(Char_RX_Data, "000100B4011", sizeof(RX_Data)) == 0)
 		{
 			Forward_180D_Flag = 1;
-		}
-		
-		if (strncmp(Char_RX_Data, "00010168011", sizeof(RX_Data)) == 0)
+		}		
+		else if (strncmp(Char_RX_Data, "00010168011", sizeof(RX_Data)) == 0)
 		{
 			Forward_360D_Flag = 1;
 		}
@@ -633,9 +628,8 @@ void UART1_RX_Processing ()
 		if (strncmp(Char_RX_Data, "00020000011", sizeof(RX_Data)) == 0)
 		{
 			Mode_02_Flag = 0;	
-		}
-	
-		if (strncmp(Char_RX_Data, "00020001011", sizeof(RX_Data)) == 0) 
+		}	
+		else if (strncmp(Char_RX_Data, "00020001011", sizeof(RX_Data)) == 0) 
 		{
 			Mode_02_Flag = 1;	
 		}
@@ -644,8 +638,7 @@ void UART1_RX_Processing ()
 	//MODE 03 - ACTIVE/INACTIVE STATUS TRACKING//
 	if ((strncmp(Char_RX_Data, "0003", 4) == 0) && (strncmp(&Char_RX_Data[9], "1", 1) == 0))
 	{
-		Mode_03_Flag = 1;
-		
+		Mode_03_Flag = 1;		
 		if (strncmp(Char_RX_Data, "00030000011", sizeof(RX_Data)) == 0)
 		{
 			LED_Status_Tracking_Flag = 0;
@@ -670,8 +663,7 @@ void UART1_RX_Processing ()
 	//MODE 04 - CONTROL MOTOR SPEED//
 	if ((strncmp(Char_RX_Data, "0004", 4) == 0) && (strncmp(&Char_RX_Data[9], "1", 1) == 0))
 	{
-		Mode_04_Flag = 1;
-		
+		Mode_04_Flag = 1;		
 		if (memcmp(&Char_RX_Data[4], "0", 1) == 0)
 		{
 			Control_Motor_Speed_Flag = 1;
@@ -685,14 +677,12 @@ void UART1_RX_Processing ()
 	//MODE 05 - STORE LED STATUS & MOTOR SPEED//
 	if ((strncmp(Char_RX_Data, "0005", 4) == 0) && (strncmp(&Char_RX_Data[9], "1", 1) == 0))
 	{
-		Mode_05_Flag = 1;
-		
+		Mode_05_Flag = 1;		
 		if (strncmp(Char_RX_Data, "00050001011", sizeof(RX_Data)) == 0)
 		{
 			Store_LED_Status_Flag = 1;
-		}
-		
-		if (strncmp(Char_RX_Data, "00050011011", sizeof(RX_Data)) == 0)
+		}		
+		else if (strncmp(Char_RX_Data, "00050011011", sizeof(RX_Data)) == 0)
 		{
 			Store_Motor_Speed_Flag = 1;
 		}		
@@ -707,30 +697,27 @@ void UART1_RX_Processing ()
 	}
 }
 
-//=============EEPROM PROCESSING=============//
-
+//==========   EEPROM PROCESSING   ==========//
 void EEPROM_Processing ()
 {
-	Mode_05_Flag = 0;
-	
+	Mode_05_Flag = 0;	
 	if (Store_LED_Status_Flag == 1)
 	{
 		for(int i = 0; i <= 2; i++)
-	{
-		HAL_I2C_Mem_Write(&hi2c1, 0xA0, i, 2, &LED_Status_Buffer[i], 1, 100);
-		HAL_Delay(5);
-	}
+		{
+			HAL_I2C_Mem_Write(&hi2c1, 0xA0, i, 2, &LED_Status_Buffer[i], 1, 100);
+			HAL_Delay(5);
+		}
 	}
 }
 
-//=====================================CONTROL LED======================================//
-//======================================================================================//
-//======================================================================================//
+//===========================================================================//
+//============================   CONTROL LED   ==============================//
+//===========================================================================//
 
 void LED_Control ()
 {
-	Mode_00_Flag = 0;
-	
+	Mode_00_Flag = 0;	
 	if (LED_1_Status_Flag == 0)
 	{
 		HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, 1);
@@ -794,18 +781,14 @@ int main(void)
   MX_I2C2_Init();
   MX_I2C1_Init();
   /* USER CODE BEGIN 2 */
-	//=============ACTIVE UART RECEIVING WITH IDLE AND DMA MODE=============//
-	HAL_UARTEx_ReceiveToIdle_DMA (&huart1, RX_Data, sizeof(RX_Data));
-	
-	//=============ACTIVE PWM MODE VIA TIMER=============//
-	HAL_TIM_PWM_Start (&htim1, TIM_CHANNEL_1);
-	
-	//=============ACTIVE TIMER INTERUPT=============//
-	HAL_TIM_Base_Start_IT (&htim2);
-	HAL_TIM_Base_Start_IT (&htim3);	
-	
-	//HAL_TIM_Base_Start_IT(&htim1);
-	
+  //=============ACTIVE UART RECEIVING WITH IDLE AND DMA MODE=============//
+  HAL_UARTEx_ReceiveToIdle_DMA (&huart1, RX_Data, sizeof(RX_Data));
+  //=============ACTIVE PWM MODE VIA TIMER=============//
+  HAL_TIM_PWM_Start (&htim1, TIM_CHANNEL_1);
+  //=============ACTIVE TIMER INTERUPT=============//
+  HAL_TIM_Base_Start_IT (&htim2);
+  HAL_TIM_Base_Start_IT (&htim3);	
+  //HAL_TIM_Base_Start_IT(&htim1);	
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -821,49 +804,40 @@ int main(void)
 		{
 			UART1_RX_Flag = 0;
 			UART1_RX_Processing ();
-		}
-		
+		}		
 		if (Mode_00_Flag == 1)
 		{
 			LED_Control ();
-		}
-				
+		}				
 		if (Mode_01_Flag == 1)
 		{
 			Iden_Control_Motor++;
 			Change_Motor_Position ();
-		}
-		
+		}		
 		if (Mode_02_Flag == 1)
 		{
 			Pulse_Transmit_Via_Com ();
-		}
-		
+		}		
 		if ((Mode_03_Flag == 1) && (Timer3_Delay_Flag == 1))
 		{
 			Active_Inactive_Status_Tracking ();
-		}
-		
+		}		
 		if (Mode_04_Flag == 1)
 		{
 			Control_Motor_Speed ();
-		}
-		
+		}		
 		if (Mode_05_Flag == 1) 
 		{
 			EEPROM_Processing ();
-		}
-		
+		}		
 		if (Recover_Data_Flag == 0)
 		{
 			Recover_Data ();
-		}
-		
+		}		
 		if (Mode_06_Flag == 1)
 		{
 			Change_Output_Voltage ();
-		}
-	
+		}	
 		if (PID_Calculation_Flag == 1)
 		{
 			PID_Calculation ();
